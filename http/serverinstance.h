@@ -10,7 +10,7 @@ namespace cppserver{
     class serverInstance{
 public:
         serverInstance();
-        void open();
+        void open(int port);
         void close();
         std::future<void> handle_message(const std::wstring &message);
 private:
