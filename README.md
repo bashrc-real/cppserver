@@ -1,3 +1,3 @@
-####cppserver
+# cppserver
 
-http server library for c++ over boost::asio library
+http server as a library over c++ using [boost::asio](https://think-async.com/)
