@@ -2,5 +2,6 @@
 
 int main(){
    cppserver::serverInstance serverInstance;
-    serverInstance.open();
+    serverInstance.open(1234);
+    
 }
