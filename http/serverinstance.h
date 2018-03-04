@@ -19,7 +19,6 @@ private:
         boost::asio::io_service m_ioservice;
         boost::asio::ip::tcp::acceptor m_acceptor;
         boost::asio::ip::tcp::endpoint m_endpoint;
-
         bool isOpen = false;
     };
 }
