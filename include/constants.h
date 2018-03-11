@@ -7,5 +7,6 @@ namespace cppserver {
         const string default_content_length_header = "Content-Length";
         const string default_content_type_header = "Content-Type";
         const string default_content_type = "text/html";
+        const string default_root = "index.html";
     }
 }

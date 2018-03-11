@@ -1,0 +1,94 @@
+#include "serverInstance.h"
+#include "constants.h"
+#include "CustomException.h"
+#include "http_request_handler.h"
+#include <string>
+#include <cassert>
+#include <array>
+#include <algorithm>
+namespace cppserver{
+    namespace tests{
+        template<size_t const N>
+        std::array<char, N> to_array(const string &v)
+        {
+            std::array<char, N> d;
+            std::copy(v.begin(), v.end(), d.data());
+            return d;
+        }
+
+
+        void testInvalidData(){
+            bool wasExceptionThrown = false;
+            auto testThrowsException = [&wasExceptionThrown](const string &data){
+                try{
+                auto junkData = dat;
+                auto data = to_array<100>(junkData); 
+                handleRequest(data, junkData.size());
+            }catch(const InvalidDataException &){
+                wasExceptionThrown = true;
+            }catch(const HttpResponseException &){
+                wasExceptionThrown = true;
+            }
+            catch(const std::exception &ex){
+                assert(false, "Invalid exception thrown");
+            }
+            assert(wasExceptionThrown, "Exception was not thrown");
+            };
+
+            auto junkData = "JUNKDATADATATDATDA";
+            testThrowsException(junkData);
+            auto partialJunk = "GET / HTTP/1.1\r\nMy name is anthony gonajalis";
+            testThrowsException(junkData);
+            auto emptyData = "";
+            testThrowsException(emptyData);
+        }
+
+        void testHeaders(){
+            auto headerData = "GET / HTTP/1.1\r\n"
+            "Host: www.example.com\r\n"
+            "Keep-Alive\r\n"
+            "Accept-Encoding: gzip\r\n"
+            "\r\n\r\nSaurSaurBulbasaur";
+            auto getParsedData = handleRequest(to_array<1024>(headerData), headerData.size());
+            auto iter = getParsedData.headers.find("Host");
+            assert(iter != getParsedData.headerData.end());
+            assert(iter->second == "www.example.com");
+            getParsedData.isHeaderPresent("Keep-Alive");
+            iter = getParsedData.headers.find("Accept-Encoding");
+            assert(iter->second == "gzip");
+            
+            // empty path should default to default index file
+            assert(getParsedData.requestedFile, constants::default_root);
+        }
+
+        void testCorruptedHeaders(){
+            auto headerData = "GET / HTTP/1.1\r\n"
+            "Host: www.example.com\r\n"
+            "Keep-Aliiiive\r\n";
+            bool was exceptionThrown = false;
+            try{
+            auto getParsedData = handleRequest(to_array<1024>(headerData), headerData.size());
+            }catch(const InvalidDataException &){
+                wasExceptionThrown = true;
+            }
+
+            assert(wasExceptionThrown);
+
+        }
+
+        void testGetPath(){
+            auto headerData = "GET /my_name_is_pikachu.exe HTTP/1.1\r\n"
+            "Host: www.example.com\r\n"
+            "Keep-Aliiiive\r\n";
+            auto getParsedData = handleRequest(to_array<1024>(headerData), headerData.size());
+            assert(getParsedData.requestedFile, "my_name_is_pikachu.exe");
+        }
+    }
+}
+
+int main(){
+    cppserver::tests::testCorruptedHeaders();
+    cppserver::tests::testGetPath();
+    cppserver::tests::testHeaders();
+    cppserver::tests::testInvalidData();
+}

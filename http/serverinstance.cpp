@@ -19,7 +19,7 @@ namespace cppserver{
         isOpen = false;
     }
 
-    void connection::write(const reply &replyObject}
+    void connection::write(const httpData &httpDataObject}
     {
       auto self(shared_from_this());
       boost::asio::async_write(m_socket, replyObject.data(),
@@ -46,7 +46,7 @@ namespace cppserver{
       {
         if (!ec)
         {
-            write(handler::handleRequest(m_buffer));
+            write(handler::handleRequest(m_buffer).data());
         }
         else
         {
